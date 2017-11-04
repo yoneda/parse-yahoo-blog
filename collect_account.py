@@ -4,6 +4,8 @@ import requests
 from bs4 import BeautifulSoup
 from simplemysql import SimpleMysql
 
+# yahooブログからランダムで記事を抽出し、[アカウント名,性別]のセットをMySQLに保存するコード
+# 実行前に、[sudo mysql.server start]を実行してMySQLを起動しなければいけない
 def main():
     manCount = 0
     womenCount = 0
@@ -12,7 +14,7 @@ def main():
         url = "https://blogs.yahoo.co.jp/FRONT/randomblog.html" # yahooブログをランダムに1個取得するURL
         r = requests.get(url)
         redirected_url = r.url
-        account = re.sub(r"(https://blogs.yahoo.co.jp)/(\w+)/(\d+.html)",r"\2",redirected_url)
+        account = re.sub(r"(https://blogs.yahoo.co.jp)/(\w+)/(\d+.html)",r"\2",redirected_url) # 正規表現でブログurlからアカウント名を抽出
         text = r.text
         soup = BeautifulSoup(text,"html5lib") # html5libはブラウザと同じようにパースしてくれる優れたオプション
         genderTag = soup.find(class_="usercard__desc")
