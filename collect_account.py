@@ -29,7 +29,7 @@ def main():
             print("account="+account+",gender=1")
         if manCount>=100 and womenCount>=100:
             break
-    db.commit()
+    db.commit() # ALERT: 最後に1回コミットではなく、whileループの中にいれたほうがよい？
     print("the end")
 
 
