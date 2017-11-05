@@ -20,7 +20,7 @@ def extract(account,maxNum):
         params = {"p":page}
         html = requests.get(url,params=params).text
         soup = BeautifulSoup(html,"html5lib")
-        contentTags = soup.findAll(class_ = "entryTd userDefText")
+        contentTags = soup.findAll(class_ = "entryTd")
         if not contentTags: # 配列が空ならば、もうこれ以上記事はないということ
             return text,articleNum
         for i,contentTag in enumerate(contentTags):
@@ -37,23 +37,19 @@ def extract(account,maxNum):
 
 
 def main():
-    text = extract("kirara21_0618",5000)
-    print(text)
-    print(len(text))
-    """
-    url = "https://blogs.yahoo.co.jp/kirara21_0618/MYBLOG/yblog.html?m=lc&p=1"
-    r = requests.get(url)
-    text = r.text
-    soup = BeautifulSoup(text,"html5lib")
-    contentTags = soup.findAll(class_ = "entryTd userDefText")
-    for i,contentTag in enumerate(contentTags):
-        contentText = contentTag.text
-        # 正規表現で[/n]と[ ]を取り除こうとしたが、シフトの方がうまくいかなかった
-        # contentText = re.sub(r"[(\n+)( +)]",r"",contentText)
-        contentText = contentText.replace(u"\n","").replace(u" ","").replace(u"　","")
-        print(i)
-        print(len(contentText))
-    """
+    db = SimpleMysql(host="127.0.0.1",db="ybdb",user="yoneda",passwd="qweewqq")
+    accounts = db.getAll("account")
+    for account in accounts:
+        name = account[1]
+        gender = account[2]
+        text, articleNum= extract(name,5000)
+        db.insert("blog",{"content":text,"article_num": articleNum,"gender":gender})
+        db.commit()
+        print("text:"+text[0:140])
+        print("account:"+name)
+        print("articleNum:"+str(articleNum))
+        print("gender:"+str(gender))
+
 
 if __name__ == "__main__":
     main()

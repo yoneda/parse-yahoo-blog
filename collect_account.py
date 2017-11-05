@@ -4,8 +4,10 @@ import requests
 from bs4 import BeautifulSoup
 from simplemysql import SimpleMysql
 
-# yahooブログからランダムで記事を抽出し、[アカウント名,性別]のセットをMySQLに保存するコード
-# 実行前に、[sudo mysql.server start]を実行してMySQLを起動しなければいけない
+"""
+yahooブログからランダムで記事を抽出し、[アカウント名,性別]のセットをMySQLに保存するコード
+実行前に、[sudo mysql.server start]を実行してMySQLを起動しなければいけない
+"""
 def main():
     manCount = 0
     womenCount = 0
