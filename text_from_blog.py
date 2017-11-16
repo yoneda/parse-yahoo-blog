@@ -30,7 +30,7 @@ def extract(account,maxNum):
             正規表現で"/n"と" "を取り除こうとしたが、シフト(" ")の方がうまく除去できなかった
             contentText = re.sub(r"[(\n+)( +)]",r"",contentText)
             """
-            contentText = contentText.replace(u"\n","").replace(u" ","").replace(u"　","")
+            contentText = contentText.replace(u"\n","").replace(u" ","").replace(u"　","") # なぜシフトを取り除くのかというコメントがあった
             if (len(text) + len(contentText))>maxNum:
                 return text,articleNum
             text = text + contentText
