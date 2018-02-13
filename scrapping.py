@@ -2,6 +2,7 @@
 import re
 import sys
 import requests
+import MySQLdb
 from bs4 import BeautifulSoup
 
 def goodcut_text(text,num):
@@ -93,18 +94,51 @@ def extract_text(account,num):
                 return text
     return None
 
+def save_to_mysql(row):
+    """
+    データをテーブルに挿入する関数
+    @param rows <list> 挿入したいデータ
+    """
+    connect = MySQLdb.connect(user="root",host="localhost",db="ybdb")
+    cursor = connect.cursor()
+    sql = "insert into blog2000(account,gender,content) values(%s,%s,%s)"
+    cursor.execute(sql,(row[0],row[1],row[2]))
+    connect.commit()
+    connect.close()
+
+def get_from_mysql():
+    """
+    テーブルからデータをすべて取り出す関数
+    @return rows
+    """
+    connect = MySQLdb.connect(user="root",host="localhost",db="ybdb")
+    cursor = connect.cursor()
+    sql = "select * from blog2000"
+    cursor.execute(sql)
+    blogs = cursor.fetchall()
+    return blogs
+
+def check_duplicate_account(account,rows):
+    """
+    アカウントがデータベースに既に存在するかどうかをチェックする関数
+    """
+    isDuplicate = False
+    for row in rows:
+        if account==row[1]:
+            isDuplicate = True
+    return isDuplicate
 
 def main():
     num = 5000
-    for i in range(0,10):
+    for i in range(0,100):
         account = random_account()
         gender = extract_gender(account)
         text = extract_text(account,num)
-        if gender!=-1 and text!=None:
-            print("account={}".format(account))
-            print("gender={}".format(gender))
-            print("text={}".format(text[0:20]))
-
+        rows = get_from_mysql()
+        isDuplicate = check_duplicate_account(account,rows)
+        if isDuplicate==True : print("duplicate!")
+        if gender!=-1 and text!=None and isDuplicate==False:
+            save_to_mysql([account,gender,text])
 
 
 if __name__ == "__main__":
