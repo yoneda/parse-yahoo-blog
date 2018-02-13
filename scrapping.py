@@ -94,26 +94,26 @@ def extract_text(account,num):
                 return text
     return None
 
-def save_to_mysql(row):
+def save_to_mysql(row,db,table):
     """
     データをテーブルに挿入する関数
     @param rows <list> 挿入したいデータ
     """
-    connect = MySQLdb.connect(user="root",host="localhost",db="ybdb")
+    connect = MySQLdb.connect(user="root",host="localhost",db=db)
     cursor = connect.cursor()
-    sql = "insert into blog2000(account,gender,content) values(%s,%s,%s)"
+    sql = "insert into "+table+"(account,gender,content) values(%s,%s,%s)"
     cursor.execute(sql,(row[0],row[1],row[2]))
     connect.commit()
     connect.close()
 
-def get_from_mysql():
+def get_from_mysql(db,table):
     """
     テーブルからデータをすべて取り出す関数
     @return rows
     """
-    connect = MySQLdb.connect(user="root",host="localhost",db="ybdb")
+    connect = MySQLdb.connect(user="root",host="localhost",db=db)
     cursor = connect.cursor()
-    sql = "select * from blog2000"
+    sql = "select * from "+table
     cursor.execute(sql)
     blogs = cursor.fetchall()
     return blogs
@@ -179,12 +179,21 @@ def remove_4byte(text):
 
 
 def main():
+    # この5つのパラメータを変更する
+    # mumは1ユーザあたりに取得したい文字数
+    # malemaxは男性ユーザ数の上限
+    # femalemaxは女性ユーザ数の上限
+    # dbnameはデータベース名
+    # tableはテーブル名
     num = 5000
     malemax = 100
     femalemax = 100
+    db = "ybdb"
+    table = "blog2000"
+
     while True:
         # 終了条件
-        rows = get_from_mysql()
+        rows = get_from_mysql(db,table)
         male,female = male_female_count(rows)
         if male>=malemax and female>=femalemax:
             break
@@ -200,7 +209,7 @@ def main():
         if text!=None:
             text = remove_4byte(text)
             print("text={}".format(text[0:20]))
-            save_to_mysql([account,gender,text])
+            save_to_mysql([account,gender,text],db,table)
 
 
 
