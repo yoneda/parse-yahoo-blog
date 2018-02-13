@@ -57,16 +57,14 @@ def extract_gender(account):
         gender = 0
     elif genderText.find(u"女性")!=-1:
         gender = 1
-    else:
-        raise Exception("failed to find gender")
     return gender
 
-def extract_article(account,num):
+def extract_text(account,num):
     """
     Yahooブログのあるユーザの記事テキストを取得する
     @param <str> account アカウント名
     @param <int> num テキスト文字数
-    @return <str> テキスト
+    @return <str> テキスト or None
     """
     page = 0
     text = ""
@@ -75,7 +73,7 @@ def extract_article(account,num):
         if page>num:
             # ループしすぎた場合は処理を抜ける。
             # 集めたい文字数はnum個なので、記事の数がnumより大きいわけないという判断から
-            raise Exception("many loop error")
+            break
         url = url = "https://blogs.yahoo.co.jp/" + account + "/MYBLOG/yblog.html";
         params = {"p":page}
         html = requests.get(url,params=params).text
@@ -83,31 +81,29 @@ def extract_article(account,num):
         contentTags = soup.findAll(class_ = "entryTd")
         if len(contentTags)==0:
             # このpageの記事は0件だったので、ループを抜ける。
-            raise Exception("text too short error")
+            break
         for contentTag in contentTags:
             contentText = contentTag.text
             contentText = contentText.replace(u"\n","").replace(u"\r","") # 改行文字を削除
             contentText = contentText.replace(u" ","").replace(u"　","") # シフトを削除
             text = text + contentText
+            # print(len(text))
             if len(text)>=num:
                 # 抽出したテキストの文字数がnumを超えた時、関数を抜ける。
                 return text
+    return None
 
 
 def main():
-    account = random_account()
-
-    try:
+    num = 5000
+    for i in range(0,10):
+        account = random_account()
         gender = extract_gender(account)
-        print(gender)
-    except:
-        print("性別抽出に失敗")
-
-    try:
-        text = extract_article(account,5000)
-        print(text)
-    except:
-        print("テキスト抽出に失敗")
+        text = extract_text(account,num)
+        if gender!=-1 and text!=None:
+            print("account={}".format(account))
+            print("gender={}".format(gender))
+            print("text={}".format(text[0:20]))
 
 
 
