@@ -35,7 +35,11 @@ def random_account():
     """
     # yahooブログをランダムに1個取得するURL
     url = "https://blogs.yahoo.co.jp/FRONT/randomblog.html"
-    r = requests.get(url)
+    r = None
+    try:
+        r = requests.get(url)
+    except:
+        return ""
     redirected_url = r.url
     # 正規表現でブログurlからアカウント名を抽出
     account = re.sub(r"(https://blogs.yahoo.co.jp)/(\w+)/(\d+.html)",r"\2",redirected_url)
@@ -201,6 +205,7 @@ def main():
             break
 
         account = random_account()
+        if account=="": continue
         print("account={}".format(account))
         if check_duplicate_account(account,rows)==True: continue
         gender = extract_gender(account)
