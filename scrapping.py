@@ -77,7 +77,9 @@ def extract_text(account,num):
             break
         url = url = "https://blogs.yahoo.co.jp/" + account + "/MYBLOG/yblog.html";
         params = {"p":page}
-        html = requests.get(url,params=params).text
+        html = None
+        try: html = requests.get(url,params=params).text
+        except: return None # requestsのアクセス回数が超過してしまった場合はNoneを返す
         soup = BeautifulSoup(html,"html5lib")
         contentTags = soup.findAll(class_ = "entryTd")
         if len(contentTags)==0:
