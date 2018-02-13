@@ -121,6 +121,9 @@ def get_from_mysql():
 def check_duplicate_account(account,rows):
     """
     アカウントがデータベースに既に存在するかどうかをチェックする関数
+    @param <str> account アカウント名
+    @param <list> rows データベースから取得したデータ
+    @return <bool> 重複があったらTrue、なければFalse
     """
     isDuplicate = False
     for row in rows:
@@ -128,17 +131,74 @@ def check_duplicate_account(account,rows):
             isDuplicate = True
     return isDuplicate
 
+def male_female_count(rows):
+    """
+    データベースのデータのうち、男性の数と女性の数を返す
+    @param <list> rows データベースから取得したデータ
+    @return <int,int> male,female 男性の数m女性の数
+    """
+    maleCounter = 0
+    femaleCounter = 0
+    for row in rows:
+        if row[2]==0:
+            maleCounter = maleCounter + 1
+        elif row[2]==1:
+            femaleCounter = femaleCounter + 1
+    return maleCounter,femaleCounter
+
+def check_gendermax(male,female,malemax,femalemax,gender):
+    """
+    今回追加しようとしている性別が、限度数に達していないか確認する関数
+    男性を追加しようとしている場合、maleがmaxに到達していたらNG
+    女性を追加しようとしている場合、femaleがmaxに到達していたらNG
+    @param <int> male 現在の男性カウント
+    @param <int> female 現在の女性カウント
+    @param <int> malemax 最大の男性カウント
+    @param <int> femalemax 最大の女性カウント
+    @return <int> gender 今回追加しようとしている性別
+    """
+    isGendermax = False
+    if gender==0 and male>=malemax:
+        isGendermax = True
+    if gender==1 and female>=femalemax:
+        isGendermax = True
+    return isGendermax
+
+def remove_4byte(text):
+    """
+    テキストから4バイトの文字を削除
+    @param text テキスト
+    @param text 4バイト文字を削除したテキスト
+    """
+    newtext = ""
+    for i,t in enumerate(text):
+        bytelen = len(t.encode("utf-8"))
+        if bytelen < 4:
+            newtext = newtext + text[i]
+    return newtext
+
+
 def main():
     num = 5000
-    for i in range(0,100):
-        account = random_account()
-        gender = extract_gender(account)
-        text = extract_text(account,num)
+    malemax = 10
+    femalemax = 10
+    while True:
+        # 終了条件
         rows = get_from_mysql()
-        isDuplicate = check_duplicate_account(account,rows)
-        if isDuplicate==True : print("duplicate!")
-        if gender!=-1 and text!=None and isDuplicate==False:
+        male,female = male_female_count(rows)
+        if male>=malemax and female>=femalemax:
+            break
+
+        account = random_account()
+        if check_duplicate_account(account,rows)==True: continue
+        gender = extract_gender(account)
+        if gender==-1: continue
+        if check_gendermax(male,female,malemax,femalemax,gender)==True: continue
+        text = extract_text(account,num)
+        if text!=None:
+            text = remove_4byte(text)
             save_to_mysql([account,gender,text])
+
 
 
 if __name__ == "__main__":
