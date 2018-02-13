@@ -52,17 +52,20 @@ def extract_gender(account):
     @return <int> 0であれば男性、1であれば女性、-1であればnotfound
     """
     url = "https://blogs.yahoo.co.jp/{}".format(account)
-    r = requests.get(url)
+    r = None
+    try:
+        r = requests.get(url)
+    except:
+        return -1
     text = r.text
     soup = BeautifulSoup(text,"html5lib")
     genderTag = soup.find(class_="usercard__desc")
     genderText = genderTag.string
-    gender = -1
     if genderText.find(u"男性")!=-1:
-        gender = 0
+        return 0
     elif genderText.find(u"女性")!=-1:
-        gender = 1
-    return gender
+        return 1
+    return -1
 
 def extract_text(account,num):
     """
