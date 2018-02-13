@@ -180,8 +180,8 @@ def remove_4byte(text):
 
 def main():
     num = 5000
-    malemax = 10
-    femalemax = 10
+    malemax = 100
+    femalemax = 100
     while True:
         # 終了条件
         rows = get_from_mysql()
@@ -190,13 +190,16 @@ def main():
             break
 
         account = random_account()
+        print("account={}".format(account))
         if check_duplicate_account(account,rows)==True: continue
         gender = extract_gender(account)
+        print("gender={}".format(gender))
         if gender==-1: continue
         if check_gendermax(male,female,malemax,femalemax,gender)==True: continue
         text = extract_text(account,num)
         if text!=None:
             text = remove_4byte(text)
+            print("text={}".format(text[0:20]))
             save_to_mysql([account,gender,text])
 
 
