@@ -195,8 +195,8 @@ def main():
     # dbnameはデータベース名
     # tableはテーブル名
     num = 5000
-    malemax = 600
-    femalemax = 600
+    malemax = 700
+    femalemax = 700
     db = "ybdb"
     table = "blog2000"
 
